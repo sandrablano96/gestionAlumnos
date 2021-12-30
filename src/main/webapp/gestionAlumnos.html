@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+            table button {
+                width:100%;
+            }
+            table tr td:nth-child(5), table tr td:nth-child(6){
+                width: 10%;
+            }
+            .oculto {
+                display: none;
+            }
+            
+            form {
+                display:none
+            }
+            .botones {
+                margin: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Gestion de alumnos</h1>
+        <div class="botones">
+            <button id="cargarAlumnos" class="btn btn-primary">Cargar alumnos</button>
+            <button type="button" class="btn btn-primary" id="abrirInsertar">Insertar nuevo</button>
+        </div>
+       
+
+        <table id="tablaAlumnos" class="table">
+
+        </table> 
+        <!-- /****************  VENTANA MODAL ***************/ -->
+        <!-- The Modal -->
+        <div class="modal" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Alumno</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div id="formulario">
+                            <div id="divId"><p>Id: <input type="text" name="id" id="id" readonly=""></p></div>
+                            <p>Nombre:<input type="text" name="nombre" id="nombre"></p>
+                            <p>Apellido:<input type="text" name="apellido" id="apellido"></p>
+                            <p>Asignatura:<input type="text" name="asignatura" id="asignatura"></p> 
+                        </div>
+                        
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button id="btnInsertar" class="btn btn-primary">Insertar</button>
+                        <button id="btnActualizar" class="btn btn-primary">Actualizar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- /****************  VENTANA MODAL ***************/ -->
+        <script>
+            //mostrar info
+            document.getElementById("abrirInsertar").addEventListener('click', abrirInsertar);
+            document.getElementById("cargarAlumnos").addEventListener('click', cargaAlumnos);
+            
+            //acciones
+            document.getElementById("btnInsertar").addEventListener('click', insertaAlumno);
+            document.getElementById("btnActualizar").addEventListener('click', actualizaAlumno);
+            
+
+            function abrirInsertar(){
+                $("#myModal").modal('show');
+                
+                document.getElementById("btnInsertar").classList.remove("oculto");
+                document.getElementById("btnActualizar").classList.add("oculto");
+                document.getElementById("divId").classList.add("oculto");
+                
+                document.getElementById("nombre").value = "";
+                document.getElementById("apellido").value = "";
+                document.getElementById("asignatura").value = "";
+            }
+            function cargaAlumnos() {
+                let tabla = document.getElementById("tablaAlumnos");
+                fetch('http://localhost:8080/gestionAlumnos/webresources/generico/alumnos/')
+                        .then(response => response.json())
+                        .then(json => {
+                            console.log(json);
+                            //bucle para eliminar todas las filas de la tabla
+                            while (tabla.firstChild) {
+                                tabla.removeChild(tabla.firstChild);
+                            }
+                            let filaTitulos = document.createElement("tr");
+                            let columnaId = document.createElement("th");
+                            columnaId.textContent = "ID";
+                            let columnaNombre = document.createElement("th");
+                            columnaNombre.textContent = "NOMBRE";
+                            let columnaApellido = document.createElement("th");
+                            columnaApellido.textContent = "APELLIDO";
+                            let columnaAsig = document.createElement("th");
+                            columnaAsig.textContent = "ASIGNATURA";
+                            let gestion = document.createElement("th");
+                            gestion.textContent = "GESTION";
+                            gestion.colSpan="2";
+                            gestion.style.textAlign = "center";
+                            filaTitulos.appendChild(columnaId);
+                            filaTitulos.appendChild(columnaNombre);
+                            filaTitulos.appendChild(columnaApellido);
+                            filaTitulos.appendChild(columnaAsig);
+                            filaTitulos.appendChild(gestion);
+                            tabla.appendChild(filaTitulos);
+                            
+                            for (i = 0; i <= json.length; i++) {
+                                
+                                let fila = document.createElement("tr");
+                                let celdaId = document.createElement("td");
+                                celdaId.textContent = json[i].id;
+                                let celdaNombre = document.createElement("td");
+                                celdaNombre.textContent = json[i].nombre;
+                                let celdaApellido = document.createElement("td");
+                                celdaApellido.textContent = json[i].apellido;
+                                let celdaAsignatura = document.createElement("td");
+                                celdaAsignatura.textContent = json[i].asignatura;
+
+                                let celdaActualizar = document.createElement("td");
+                                let botonActualizar = document.createElement("button");
+                                botonActualizar.setAttribute("onclick", "cargaAlumnoPorId(" + json[i].id + ")");
+                                celdaActualizar.appendChild(botonActualizar);
+                                botonActualizar.textContent = "Actualizar";
+                                
+                                let celdaBorrar = document.createElement("td");
+                                let botonBorrar = document.createElement("button");
+                                botonBorrar.setAttribute("onclick", "borraAlumnoPorId(" + json[i].id + ")");
+                                celdaBorrar.appendChild(botonBorrar);
+                                botonBorrar.textContent = "Borrar";
+
+                                fila.appendChild(celdaId);
+                                fila.appendChild(celdaNombre);
+                                fila.appendChild(celdaApellido);
+                                fila.appendChild(celdaAsignatura);
+                                fila.appendChild(celdaBorrar);
+                                fila.appendChild(celdaActualizar);
+
+                                tabla.appendChild(fila);
+                                
+
+
+                            }//fin de for
+                        })
+            }
+
+            function cargaAlumnoPorId(id) {
+                fetch('http://localhost:8080/gestionAlumnos/webresources/generico/alumno/' + id)
+                        .then(response => response.json())
+                        .then(json => {
+                            console.log(json);
+                            document.getElementById("formulario").style.display = "block";
+                            document.getElementById("id").value = json.id;
+                            document.getElementById("nombre").value = json.nombre;
+                            document.getElementById("apellido").value = json.apellido;
+                            document.getElementById("asignatura").value = json.asignatura;
+                        })
+                $("#myModal").modal('show');
+                document.getElementById("btnInsertar").classList.add("oculto");
+                document.getElementById("btnActualizar").classList.remove("oculto");
+                document.getElementById("divId").classList.remove("oculto");
+                
+            }
+
+            function actualizaAlumno() {
+                fetch('http://localhost:8080/gestionAlumnos/webresources/generico/alumno/', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        id: document.getElementById("id").value,
+                        nombre: document.getElementById("nombre").value,
+                        apellido: document.getElementById("apellido").value,
+                        asignatura: document.getElementById("asignatura").value,
+                    }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                        .then((response) => response.json())
+                        .then((json) => console.log(json));
+                cargaAlumnos();
+            }
+            
+            function insertaAlumno() {
+                fetch('http://localhost:8080/gestionAlumnos/webresources/generico/alumno/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nombre: document.getElementById("nombre").value,
+                        apellido: document.getElementById("apellido").value,
+                        asignatura: document.getElementById("asignatura").value,
+                    }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                        .then((response) => response.json())
+                        .then((json) => console.log(json));
+                        cargaAlumnos();
+            }
+            
+
+            function borraAlumnoPorId(id) {
+                fetch('http://localhost:8080/gestionAlumnos/webresources/generico/alumno/' + id, {
+                    method: 'DELETE',
+                });
+                cargaAlumnos();
+                
+            }
+
+
+
+        </script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
