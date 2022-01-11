@@ -35,6 +35,7 @@
             for (Alumnos a: listado){ %>
         <table class="table table-striped">
             <tr>
+                <td><img src="ficheros/<%=a.getImagen()%>" width="75" height="75"></td>
                 <td> <%=a.getId() %> </td>
                 <td> <%=a.getNombre() %> </td>
                 <td> <%= a.getApellido() %> </td>

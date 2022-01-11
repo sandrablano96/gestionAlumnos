@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package modelo;
 
@@ -21,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Sandra
+ * @author DAW-A
  */
 @Entity
 @Table(name = "alumnos")
@@ -31,7 +30,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Alumnos.findById", query = "SELECT a FROM Alumnos a WHERE a.id = :id"),
     @NamedQuery(name = "Alumnos.findByNombre", query = "SELECT a FROM Alumnos a WHERE a.nombre = :nombre"),
     @NamedQuery(name = "Alumnos.findByApellido", query = "SELECT a FROM Alumnos a WHERE a.apellido = :apellido"),
-    @NamedQuery(name = "Alumnos.findByAsignatura", query = "SELECT a FROM Alumnos a WHERE a.asignatura = :asignatura")})
+    @NamedQuery(name = "Alumnos.findByAsignatura", query = "SELECT a FROM Alumnos a WHERE a.asignatura = :asignatura"),
+    @NamedQuery(name = "Alumnos.findByImagen", query = "SELECT a FROM Alumnos a WHERE a.imagen = :imagen")})
 public class Alumnos implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,12 +42,12 @@ public class Alumnos implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 50)
+    @Size(min = 1, max = 100)
     @Column(name = "nombre")
     private String nombre;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 150)
     @Column(name = "apellido")
     private String apellido;
     @Basic(optional = false)
@@ -55,6 +55,11 @@ public class Alumnos implements Serializable {
     @Size(min = 1, max = 100)
     @Column(name = "asignatura")
     private String asignatura;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 200)
+    @Column(name = "imagen")
+    private String imagen;
 
     public Alumnos() {
     }
@@ -63,11 +68,12 @@ public class Alumnos implements Serializable {
         this.id = id;
     }
 
-    public Alumnos(Integer id, String nombre, String apellido, String asignatura) {
+    public Alumnos(Integer id, String nombre, String apellido, String asignatura, String imagen) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.asignatura = asignatura;
+        this.imagen = imagen;
     }
 
     public Integer getId() {
@@ -100,6 +106,14 @@ public class Alumnos implements Serializable {
 
     public void setAsignatura(String asignatura) {
         this.asignatura = asignatura;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     @Override

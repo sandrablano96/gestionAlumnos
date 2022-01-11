@@ -60,12 +60,14 @@ public class Crud {
     public static int actualizarAlumno(Alumnos alum){
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("my_persistence_unit");
         EntityManager manager = factory.createEntityManager();
-        String sql = "UPDATE Alumnos a SET a.nombre = :nombre, a.apellido = :apellido, a.asignatura = :asignatura WHERE a.id = :id";
+        String sql = "UPDATE Alumnos a SET a.nombre = :nombre, a.apellido = :apellido, a.asignatura = :asignatura, a.imagen = :imagen WHERE a.id = :id";
         Query q = manager.createQuery(sql,Alumnos.class);
         q.setParameter("asignatura", alum.getAsignatura());
         q.setParameter("nombre", alum.getNombre());
         q.setParameter("apellido", alum.getApellido());
+        q.setParameter("imagen", alum.getImagen());
         q.setParameter("id", alum.getId());
+        
         manager.getTransaction().begin();
         int filasAfectadas = q.executeUpdate();
         manager.getTransaction().commit();

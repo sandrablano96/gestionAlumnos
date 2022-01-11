@@ -5,14 +5,22 @@
  */
 package controlador;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import modelo.Alumnos;
 import modelo.Crud;
 
@@ -20,12 +28,23 @@ import modelo.Crud;
  *
  * @author Sandra
  */
+@MultipartConfig( fileSizeThreshold=1024*1024*10, 
+            maxFileSize=1024*1024*50, maxRequestSize=1024*1024*10)
+
 @WebServlet(name = "Controlador", urlPatterns = {"/Controlador"})
 public class Controlador extends HttpServlet {
 final int NUM_LINEAS_PAGINA = 5;
- int pagina=1;
- int offset=0;
- int num_paginas=0;
+int pagina=1;
+int offset=0;
+int num_paginas=0;
+String path = "";
+
+@Override
+public void init(ServletConfig config){
+path = config.getServletContext().getRealPath("").
+                        concat(File.separator).concat("ficheros");
+}
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -60,6 +79,9 @@ final int NUM_LINEAS_PAGINA = 5;
                     alum.setNombre(request.getParameter("nombre"));
                     alum.setApellido(request.getParameter("apellido"));
                     alum.setAsignatura(request.getParameter("asignatura"));
+                    alum.setAsignatura(request.getParameter("asignatura"));
+                    String imagen = this.subirArchivo(request,response);
+                    alum.setImagen(imagen);
                     Crud.insertaAlumno(alum);
                     
                     listar(request, response);
@@ -98,7 +120,8 @@ final int NUM_LINEAS_PAGINA = 5;
                     String nombre = request.getParameter("nombre");
                     String apellido = request.getParameter("apellido");
                     String asignatura = request.getParameter("asignatura");
-                    alum = new Alumnos(id, nombre, apellido, asignatura);
+                    imagen = this.subirArchivo(request,response);
+                    alum = new Alumnos(id, nombre, apellido, asignatura, imagen);
                     if (Crud.actualizarAlumno(alum) != 0) {
                         request.setAttribute("mensaje", "Alumno con id " + id + " actualizado");
                         request.setAttribute("alumno", alum);
@@ -134,6 +157,26 @@ final int NUM_LINEAS_PAGINA = 5;
             request.getRequestDispatcher("verAlumnos.jsp").forward(request,response);
          
      }
+String subirArchivo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        // path = request.getServletContext().getRealPath("").concat(File.separator).concat("ficheros");
+    Part filePart = request.getPart("imagen"); // Obtiene el archivo el input en el form se llama imagen
+    String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+
+    //InputStream fileContent = filePart.getInputStream(); //Lo transforma en InputStream
+
+    //String path="/archivos/";
+    File uploads = new File(path); //Carpeta donde se guardan los archivos
+    uploads.mkdirs(); //Crea los directorios necesarios
+    File file = File.createTempFile("cod"+""+"-", "-"+fileName, uploads); //Evita que hayan dos archivos con el mismo nombre
+
+    try (InputStream input = filePart.getInputStream()){
+        Files.copy(input, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    //return file.getPath();
+    String archivo = file.getName();
+    return archivo;
+}
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
